@@ -13,3 +13,7 @@ export const convertHexToRGB = (
       }
     : null;
 };
+
+export const calculateOpacity = (min: number, opacity: number) => {
+  return opacity * (1 - min) + min;
+};

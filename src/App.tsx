@@ -1,22 +1,33 @@
+import { useState } from "react";
 import styled from "styled-components";
-import CustomNodeFlow from "./examples/CustomNodeExample";
+import Debugger from "./components/Debugger";
+import ColorPicker from "./components/controls/ColorPicker";
+import NetworkVisualization from "./components/visualization/NetworkVisualization";
+import { NetworkCtxProvider } from "./context/NetworkCtx";
 
 const Body = styled("div")`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-width: 100vw;
-  background-color: red;
 `;
 
 const Header = styled("h1")``;
 
 export default function App() {
+  const [background, setBackground] = useState<string>("");
+
   return (
-    <Body>
-      <Header>Hello ML Playground</Header>
-      <CustomNodeFlow />
-      <Header>Controls and color picker here</Header>
-    </Body>
+    <NetworkCtxProvider>
+      <Body>
+        <Header>ML Playground</Header>
+        <NetworkVisualization />
+        <ColorPicker
+          value={background}
+          onChange={(e) => setBackground(e.target.value)}
+        />
+        <Debugger />
+      </Body>
+    </NetworkCtxProvider>
   );
 }
