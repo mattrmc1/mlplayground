@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/mlplayground/static/css/main.cf3e6f8e.css",
+    "main.js": "/mlplayground/static/js/main.7f0c0e26.js",
+    "static/js/787.54cc2b2b.chunk.js": "/mlplayground/static/js/787.54cc2b2b.chunk.js",
+    "index.html": "/mlplayground/index.html",
+    "main.cf3e6f8e.css.map": "/mlplayground/static/css/main.cf3e6f8e.css.map",
+    "main.7f0c0e26.js.map": "/mlplayground/static/js/main.7f0c0e26.js.map",
+    "787.54cc2b2b.chunk.js.map": "/mlplayground/static/js/787.54cc2b2b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cf3e6f8e.css",
+    "static/js/main.7f0c0e26.js"
+  ]
+}
