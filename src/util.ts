@@ -14,6 +14,22 @@ export const convertHexToRGB = (
     : null;
 };
 
+export const convertHexToInput = (hex: string): [number, number, number] => {
+  let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+
+  let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) {
+    throw new Error("Failed to parse hex input");
+  }
+
+  return [
+    Math.round(parseInt(result[1], 16) / 2.55) / 100,
+    Math.round(parseInt(result[2], 16) / 2.55) / 100,
+    Math.round(parseInt(result[3], 16) / 2.55) / 100,
+  ];
+};
+
 export const calculateOpacity = (min: number, opacity: number) => {
   return opacity * (1 - min) + min;
 };

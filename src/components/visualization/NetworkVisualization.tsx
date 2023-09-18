@@ -13,8 +13,14 @@ import styled from "styled-components";
 import { useNetwork } from "../../context/NetworkCtx";
 import { MIN_OPACITY } from "../../data/config";
 import { training } from "../../data/training";
-import { calculateOpacity, convertHexToRGB } from "../../util";
+import {
+  calculateOpacity,
+  convertHexToInput,
+  convertHexToRGB,
+} from "../../util";
 import ActivationNode, { ActivationNodeProps } from "./ActivationNode";
+import ConfigControls from "../controls/ConfigControls";
+import OutputPanel from "./OutputPanel";
 
 const connectionLineStyle = { stroke: "#fff" };
 const nodeTypes = {
@@ -41,11 +47,13 @@ const LoaderRoot = styled("div")`
 `;
 
 export default function NetworkVisualization() {
-  const { network } = useNetwork();
+  const { network, setConfig } = useNetwork();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [backgroundColor, setBackgroundColor] = useState("#fff");
+  const [textColor, setTextColor] = useState("#000");
 
   const calculateNodesAndEdges = () => {
     const activations: Node<ActivationNodeProps>[] =
@@ -95,15 +103,18 @@ export default function NetworkVisualization() {
       calculateNodesAndEdges();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [network.config]
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const input = convertHexToRGB(e.target.value);
+    const input = convertHexToInput(e.target.value);
     if (!input) return;
 
-    network.run(input);
+    const output = network.run(input);
+    setBackgroundColor(e.target.value);
+    setTextColor(output[0] > output[1] ? "#000" : "#fff");
+
     const vals = network.activations.flatMap((a) =>
       a.data.flatMap((v) => v[0].toFixed(2))
     );
@@ -117,6 +128,7 @@ export default function NetworkVisualization() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onChangeConfig = (config: Partial<NetworkConfig>) => {
     setIsLoading(true);
+    setConfig(config);
   };
 
   if (isLoading) {
@@ -139,38 +151,17 @@ export default function NetworkVisualization() {
       fitView
       attributionPosition="bottom-left"
     >
+      <OutputPanel
+        position="top-center"
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+      />
       <Panel position="bottom-left">
-        <input
-          type="color"
-          onChange={(e) => {
-            const input = convertHexToRGB(e.target.value);
-            if (!input) return;
-
-            network.run(input);
-            const vals = network.activations.flatMap((a) =>
-              a.data.flatMap((v) => v[0].toFixed(2))
-            );
-            setNodes((nds) =>
-              nds.map((node, i) => {
-                return { ...node, data: { ...node.data, val: vals[i] } };
-              })
-            );
-          }}
+        <ConfigControls
+          input={backgroundColor}
+          onChangeInput={onChangeInput}
+          onSave={onChangeConfig}
         />
-        <button onClick={() => onChangeConfig({})}>Click me</button>
-      </Panel>
-      <Panel position="bottom-center">
-        <button
-          onClick={() =>
-            network
-              .trainAsync(training)
-              .then((res) => console.log(res))
-              .catch((err) => console.log(err))
-          }
-        >
-          Train network
-        </button>
-        <button onClick={() => calculateNodesAndEdges()}>Draw network</button>
       </Panel>
     </Root>
   );

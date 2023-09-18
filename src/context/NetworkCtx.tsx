@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { createConfig } from "../data/config";
-import { training } from "../data/training";
+import { trainingSimple } from "../data/training";
 
 type NetworkContextType = {
   config: NetworkConfig;
@@ -24,7 +24,7 @@ export const NetworkCtxProvider = ({ children }: PropsWithChildren<{}>) => {
   const network = useMemo(() => {
     const c: NetworkConfig = createConfig(config);
     const network: NeuralNetwork = new NeuralNetwork(c).initialize();
-    network.train(training);
+    network.train(trainingSimple);
 
     return network;
   }, [config]);

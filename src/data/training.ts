@@ -101,3 +101,11 @@ export const training: TrainingExample[] = [
     },
   },
 ];
+
+export const trainingSimple: { input: number[]; output: number[] }[] =
+  training.map((t) => {
+    return {
+      input: Object.values(t.input),
+      output: Object.values(t.output),
+    };
+  });
