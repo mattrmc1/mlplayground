@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { CircularProgress } from "@mui/material";
+import { NetworkConfig } from "goddard/dist/@types/NetworkConfig";
+import { ChangeEvent, useEffect, useState } from "react";
 import ReactFlow, {
   Edge,
   Node,
@@ -10,7 +12,8 @@ import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { useNetwork } from "../../context/NetworkCtx";
 import { MIN_OPACITY } from "../../data/config";
-import { calculateOpacity } from "../../util";
+import { training } from "../../data/training";
+import { calculateOpacity, convertHexToRGB } from "../../util";
 import ActivationNode, { ActivationNodeProps } from "./ActivationNode";
 
 const connectionLineStyle = { stroke: "#fff" };
@@ -29,10 +32,20 @@ const Root = styled(ReactFlow)`
   flex-grow: 1;
 `;
 
+const LoaderRoot = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: beige;
+  flex-grow: 1;
+`;
+
 export default function NetworkVisualization() {
   const { network } = useNetwork();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const calculateNodesAndEdges = () => {
     const activations: Node<ActivationNodeProps>[] =
@@ -73,6 +86,8 @@ export default function NetworkVisualization() {
 
     setNodes(activations);
     setEdges(weights);
+
+    setIsLoading(false);
   };
 
   useEffect(
@@ -80,8 +95,37 @@ export default function NetworkVisualization() {
       calculateNodesAndEdges();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [network]
+    []
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const input = convertHexToRGB(e.target.value);
+    if (!input) return;
+
+    network.run(input);
+    const vals = network.activations.flatMap((a) =>
+      a.data.flatMap((v) => v[0].toFixed(2))
+    );
+    setNodes((nds) =>
+      nds.map((node, i) => {
+        return { ...node, data: { ...node.data, val: vals[i] } };
+      })
+    );
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onChangeConfig = (config: Partial<NetworkConfig>) => {
+    setIsLoading(true);
+  };
+
+  if (isLoading) {
+    return (
+      <LoaderRoot>
+        <CircularProgress />
+      </LoaderRoot>
+    );
+  }
 
   return (
     <Root
@@ -95,7 +139,37 @@ export default function NetworkVisualization() {
       fitView
       attributionPosition="bottom-left"
     >
+      <Panel position="bottom-left">
+        <input
+          type="color"
+          onChange={(e) => {
+            const input = convertHexToRGB(e.target.value);
+            if (!input) return;
+
+            network.run(input);
+            const vals = network.activations.flatMap((a) =>
+              a.data.flatMap((v) => v[0].toFixed(2))
+            );
+            setNodes((nds) =>
+              nds.map((node, i) => {
+                return { ...node, data: { ...node.data, val: vals[i] } };
+              })
+            );
+          }}
+        />
+        <button onClick={() => onChangeConfig({})}>Click me</button>
+      </Panel>
       <Panel position="bottom-center">
+        <button
+          onClick={() =>
+            network
+              .trainAsync(training)
+              .then((res) => console.log(res))
+              .catch((err) => console.log(err))
+          }
+        >
+          Train network
+        </button>
         <button onClick={() => calculateNodesAndEdges()}>Draw network</button>
       </Panel>
     </Root>

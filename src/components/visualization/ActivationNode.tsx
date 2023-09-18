@@ -13,8 +13,8 @@ const Root = styled("div")<{ opacity: number }>`
   opacity: ${(props) => calculateOpacity(MIN_OPACITY, props.opacity)};
 `;
 
-const Handle = styled(RFHandle)<{ bias: number }>`
-  background-color: color-mix(in lch, blue, red);
+const Handle = styled(RFHandle)`
+  opacity: 0;
 `;
 
 export type ActivationNodeProps = {
@@ -26,12 +26,8 @@ export type ActivationNodeProps = {
 function ActivationNode({ data }: { data: ActivationNodeProps }) {
   return (
     <Root opacity={data.val}>
-      {!data.isOutput && (
-        <Handle type="source" position={Position.Right} bias={data.bias} />
-      )}
-      {!data.isInput && (
-        <Handle type="target" position={Position.Left} bias={data.bias} />
-      )}
+      {!data.isOutput && <Handle type="source" position={Position.Right} />}
+      {!data.isInput && <Handle type="target" position={Position.Left} />}
     </Root>
   );
 }
