@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Debugger from "./components/Debugger";
-import NetworkVisualization from "./components/visualization/NetworkVisualization";
+import NetworkVisualization from "./components/NetworkVisualization";
 import { NetworkCtxProvider } from "./context/NetworkCtx";
 
 const Body = styled("div")`

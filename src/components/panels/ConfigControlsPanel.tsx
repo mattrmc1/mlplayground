@@ -1,15 +1,20 @@
 import { NetworkConfig } from "goddard/dist/@types/NetworkConfig";
 import { ChangeEvent, useState } from "react";
+import { Panel, PanelPosition } from "reactflow";
 import styled from "styled-components";
 import { useNetwork } from "../../context/NetworkCtx";
 
 const MAX_LAYER_COUNT = 5;
 
+const FlexBox = styled("div")`
+  display: flex;
+`;
 const Input = styled("input")`
   display: block;
 `;
 
 export type ConfigControlsProps = {
+  position: PanelPosition;
   input: string;
   onChangeInput: (e: ChangeEvent<HTMLInputElement>) => void;
   onSave: (
@@ -20,6 +25,7 @@ export type ConfigControlsProps = {
   ) => void;
 };
 export default function ConfigControls({
+  position,
   input,
   onChangeInput,
   onSave,
@@ -32,7 +38,7 @@ export default function ConfigControls({
   const addLayer = () => {
     if (updateConfig.layerSizes.length < 5) {
       let layerSizes = [...updateConfig.layerSizes];
-      layerSizes.push(2);
+      layerSizes.push(3);
       setUpdateConfig({ ...updateConfig, layerSizes });
     }
   };
@@ -60,29 +66,32 @@ export default function ConfigControls({
   };
 
   return (
-    <>
+    <Panel position={position}>
       <p>Input</p>
       <Input type="color" value={input} onChange={onChangeInput} />
       <p>Layers</p>
       {updateConfig.layerSizes.map((layer, i) => {
         return (
-          <>
+          <FlexBox>
             <Input
               type="number"
               value={layer}
               onChange={(e) => changeLayer(i, e)}
             />
-            <button onClick={removeLayer}>Remove layer</button>
-          </>
+            <button onClick={removeLayer} style={{ marginLeft: 4 }}>
+              X
+            </button>
+          </FlexBox>
         );
       })}
-      <br />
       {updateConfig.layerSizes.length < MAX_LAYER_COUNT ? (
-        <button onClick={addLayer}>Add layer</button>
+        <button onClick={addLayer}>+</button>
       ) : (
         <></>
       )}
-      <button onClick={handleSubmit}>Save</button>
-    </>
+      <br />
+      <br />
+      <button onClick={handleSubmit}>Train</button>
+    </Panel>
   );
 }

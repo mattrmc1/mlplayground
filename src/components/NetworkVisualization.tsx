@@ -1,28 +1,18 @@
 import { CircularProgress } from "@mui/material";
 import { NetworkConfig } from "goddard/dist/@types/NetworkConfig";
 import { ChangeEvent, useEffect, useState } from "react";
-import ReactFlow, {
-  Edge,
-  Node,
-  Panel,
-  useEdgesState,
-  useNodesState,
-} from "reactflow";
+import ReactFlow, { Edge, Node, useEdgesState, useNodesState } from "reactflow";
 import "reactflow/dist/style.css";
 import styled from "styled-components";
-import { useNetwork } from "../../context/NetworkCtx";
-import { MIN_OPACITY } from "../../data/config";
-import { training } from "../../data/training";
-import {
-  calculateOpacity,
-  convertHexToInput,
-  convertHexToRGB,
-} from "../../util";
-import ActivationNode, { ActivationNodeProps } from "./ActivationNode";
-import ConfigControls from "../controls/ConfigControls";
-import OutputPanel from "./OutputPanel";
+import { useNetwork } from "../context/NetworkCtx";
+import { MIN_OPACITY } from "../data/config";
+import { calculateOpacity, convertHexToInput } from "../util";
+import ActivationNode, {
+  ActivationNodeProps,
+} from "./custom-nodes/ActivationNode";
+import ConfigControlsPanel from "./panels/ConfigControlsPanel";
+import OutputPanel from "./panels/OutputPanel";
 
-const connectionLineStyle = { stroke: "#fff" };
 const nodeTypes = {
   activation: ActivationNode,
 };
@@ -55,40 +45,36 @@ export default function NetworkVisualization() {
   const [backgroundColor, setBackgroundColor] = useState("#fff");
   const [textColor, setTextColor] = useState("#000");
 
+  // Gross
   const calculateNodesAndEdges = () => {
     const activations: Node<ActivationNodeProps>[] =
       network.activations.flatMap(({ data }, i) =>
-        data.map((a, j) => {
-          const bias = network.biases[i - 1]?.data[j][0] ?? 0;
-          const val = a[0];
-          const x = initialX + i * xSpacing;
-          const y = initialY + j * ySpacing;
-          return {
-            id: `a-${i}-${j}`,
-            type: "activation",
-            data: {
-              isInput: i === 0,
-              isOutput: i === network.sizes.length - 1,
-              val,
-              bias,
-            },
-            position: { x, y },
-          };
-        })
+        data.map((a, j) => ({
+          id: `a-${i}-${j}`,
+          type: "activation",
+          data: {
+            isInput: i === 0,
+            isOutput: i === network.sizes.length - 1,
+            val: a[0],
+            bias: network.biases[i - 1]?.data[j][0] ?? 0,
+          },
+          position: {
+            x: initialX + i * xSpacing,
+            y: initialY + j * ySpacing,
+          },
+        }))
       );
 
     const weights: Edge[] = network.weights.flatMap(({ data }, i) =>
       data.flatMap((w, j) =>
-        w.map((val, k) => {
-          return {
-            id: `w-${i}-${j}-${k}`,
-            source: `a-${i}-${k}`,
-            target: `a-${i + 1}-${j}`,
-            nodeStrokeColor: "#000",
-            type: "default",
-            style: { opacity: calculateOpacity(MIN_OPACITY, val) },
-          };
-        })
+        w.map((val, k) => ({
+          id: `w-${i}-${j}-${k}`,
+          source: `a-${i}-${k}`,
+          target: `a-${i + 1}-${j}`,
+          nodeStrokeColor: "#000",
+          type: "default",
+          style: { opacity: calculateOpacity(MIN_OPACITY, val) },
+        }))
       )
     );
 
@@ -106,7 +92,6 @@ export default function NetworkVisualization() {
     [network.config]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
     const input = convertHexToInput(e.target.value);
     if (!input) return;
@@ -125,7 +110,6 @@ export default function NetworkVisualization() {
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onChangeConfig = (config: Partial<NetworkConfig>) => {
     setIsLoading(true);
     setConfig(config);
@@ -146,7 +130,6 @@ export default function NetworkVisualization() {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       nodeTypes={nodeTypes}
-      connectionLineStyle={connectionLineStyle}
       defaultViewport={defaultViewport}
       fitView
       attributionPosition="bottom-left"
@@ -156,13 +139,13 @@ export default function NetworkVisualization() {
         backgroundColor={backgroundColor}
         textColor={textColor}
       />
-      <Panel position="bottom-left">
-        <ConfigControls
-          input={backgroundColor}
-          onChangeInput={onChangeInput}
-          onSave={onChangeConfig}
-        />
-      </Panel>
+
+      <ConfigControlsPanel
+        position="bottom-left"
+        input={backgroundColor}
+        onChangeInput={onChangeInput}
+        onSave={onChangeConfig}
+      />
     </Root>
   );
 }
