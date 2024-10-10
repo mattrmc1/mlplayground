@@ -2,4 +2,4 @@
 
 Visualizing neural networks
 
-[Demo link](https://mattrmc1.github.io/mlplayground/)
+[Try it out here](https://mattrmc1.github.io/mlplayground/)
