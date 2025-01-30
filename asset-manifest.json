@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/mlplayground/static/css/main.616ba065.css",
-    "main.js": "/mlplayground/static/js/main.88d61b05.js",
+    "main.js": "/mlplayground/static/js/main.d1c858f1.js",
     "static/js/453.b3f2b0f2.chunk.js": "/mlplayground/static/js/453.b3f2b0f2.chunk.js",
     "index.html": "/mlplayground/index.html",
     "main.616ba065.css.map": "/mlplayground/static/css/main.616ba065.css.map",
-    "main.88d61b05.js.map": "/mlplayground/static/js/main.88d61b05.js.map",
+    "main.d1c858f1.js.map": "/mlplayground/static/js/main.d1c858f1.js.map",
     "453.b3f2b0f2.chunk.js.map": "/mlplayground/static/js/453.b3f2b0f2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.616ba065.css",
-    "static/js/main.88d61b05.js"
+    "static/js/main.d1c858f1.js"
   ]
 }
