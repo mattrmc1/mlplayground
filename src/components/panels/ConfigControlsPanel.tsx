@@ -3,6 +3,7 @@ import { ChangeEvent, useState } from "react";
 import { Panel, PanelPosition } from "reactflow";
 import styled from "styled-components";
 import { useNetwork } from "../../context/NetworkCtx";
+import { DEFAULT_CONFIG, LAYER_DIFF } from "../../data/config";
 
 const MAX_LAYER_COUNT = 5;
 
@@ -77,14 +78,18 @@ export default function ConfigControls({
               type="number"
               value={layer}
               onChange={(e) => changeLayer(i, e)}
+              max={DEFAULT_CONFIG.layerSizes[i] + LAYER_DIFF}
+              min={DEFAULT_CONFIG.layerSizes[i] - LAYER_DIFF}
             />
-            <button onClick={removeLayer} style={{ marginLeft: 4 }}>
-              X
-            </button>
+            {false && (
+              <button onClick={removeLayer} style={{ marginLeft: 4 }}>
+                X
+              </button>
+            )}
           </FlexBox>
         );
       })}
-      {updateConfig.layerSizes.length < MAX_LAYER_COUNT ? (
+      {updateConfig.layerSizes.length < MAX_LAYER_COUNT && false ? (
         <button onClick={addLayer}>+</button>
       ) : (
         <></>
