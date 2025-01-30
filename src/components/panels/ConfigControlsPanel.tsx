@@ -3,11 +3,13 @@ import { ChangeEvent, useState } from "react";
 import { Panel, PanelPosition } from "reactflow";
 import styled from "styled-components";
 import { useNetwork } from "../../context/NetworkCtx";
-
-const MAX_LAYER_COUNT = 5;
+import { DEFAULT_CONFIG, LAYER_DIFF } from "../../data/config";
+import { Button, Paper, TextField } from "@mui/material";
 
 const FlexBox = styled("div")`
   display: flex;
+  gap: 8px;
+  padding-bottom: 16px;
 `;
 const Input = styled("input")`
   display: block;
@@ -35,24 +37,7 @@ export default function ConfigControls({
     network.config as Required<NetworkConfig>
   );
 
-  const addLayer = () => {
-    if (updateConfig.layerSizes.length < 5) {
-      let layerSizes = [...updateConfig.layerSizes];
-      layerSizes.push(3);
-      setUpdateConfig({ ...updateConfig, layerSizes });
-    }
-  };
-
-  const removeLayer = () => {
-    if (updateConfig.layerSizes.length > 1) {
-      let layerSizes = [...updateConfig.layerSizes];
-      layerSizes.pop();
-      setUpdateConfig({ ...updateConfig, layerSizes });
-    }
-  };
-
-  const changeLayer = (i: number, e: ChangeEvent<HTMLInputElement>) => {
-    const size = parseInt(e.target.value);
+  const changeLayer = (i: number, size: number) => {
     if (isNaN(size) || size < 2 || size > 15 || !updateConfig.layerSizes[i])
       return;
 
@@ -66,32 +51,55 @@ export default function ConfigControls({
   };
 
   return (
-    <Panel position={position}>
-      <p>Input</p>
-      <Input type="color" value={input} onChange={onChangeInput} />
-      <p>Layers</p>
-      {updateConfig.layerSizes.map((layer, i) => {
-        return (
-          <FlexBox>
-            <Input
-              type="number"
-              value={layer}
-              onChange={(e) => changeLayer(i, e)}
-            />
-            <button onClick={removeLayer} style={{ marginLeft: 4 }}>
-              X
-            </button>
-          </FlexBox>
-        );
-      })}
-      {updateConfig.layerSizes.length < MAX_LAYER_COUNT ? (
-        <button onClick={addLayer}>+</button>
-      ) : (
-        <></>
-      )}
-      <br />
-      <br />
-      <button onClick={handleSubmit}>Train</button>
+    <Panel
+      position={position}
+      // style={{ backgroundColor: "#fcfcfc", padding: 12, borderRadius: 5 }}
+    >
+      <Paper elevation={3} style={{ padding: 12 }}>
+        <p>Input</p>
+        <Input type="color" value={input} onChange={onChangeInput} />
+        <p>Layers</p>
+        <FlexBox>
+          <TextField
+            id="input-layer"
+            label="Input layer"
+            type="number"
+            variant="filled"
+            value={network.sizes[0]}
+            disabled
+            fullWidth
+          />
+          {updateConfig.layerSizes.map((layer, i) => {
+            return (
+              <TextField
+                id={`inner-layer-${i}`}
+                label={`Inner layer ${i + 1}`}
+                type="number"
+                variant="filled"
+                value={layer}
+                onChange={(e) => changeLayer(i, parseInt(e.target.value))}
+                inputProps={{
+                  max: DEFAULT_CONFIG.layerSizes[i] + LAYER_DIFF,
+                  min: DEFAULT_CONFIG.layerSizes[i] - LAYER_DIFF,
+                }}
+                fullWidth
+              />
+            );
+          })}
+          <TextField
+            id="output-layer"
+            label="Output layer"
+            type="number"
+            variant="filled"
+            value={network.sizes[network.sizes.length - 1]}
+            disabled
+            fullWidth
+          />
+        </FlexBox>
+        <Button variant="outlined" onClick={handleSubmit}>
+          Rebuild network
+        </Button>
+      </Paper>
     </Panel>
   );
 }
